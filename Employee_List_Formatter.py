@@ -75,9 +75,8 @@ def render_directory(entries: list[dict]) -> str:
             lines.append("Office: " + e["office_fmt"])
         if e["email"]:
             lines.append("Email: " + e["email"])
-        lines.append("")  # blank line between employees
+        lines.append("")
 
-    # collapse any accidental 3+ blank lines
     out = "\n".join(lines)
     out = re.sub(r"\n{3,}", "\n\n", out).rstrip() + "\n"
     return out
@@ -85,15 +84,9 @@ def render_directory(entries: list[dict]) -> str:
 
 st.set_page_config(page_title="Employee Directory Builder", layout="wide")
 st.title("Employee Directory Builder")
-st.caption("Paste the raw JSON payload, then the app extracts `department_employees` and formats a directory.")
+st.caption("Paste the raw JSON payload. The app extracts `department_employees` and formats the directory.")
 
-raw = st.text_area("Raw JSON", value="", height=280, placeholder="Paste the full JSON here...")
-
-col1, col2 = st.columns(2)
-with col1:
-    pretty = st.checkbox("Pretty-print JSON on parse", value=False)
-with col2:
-    show_table = st.checkbox("Show parsed table", value=True)
+raw = st.text_area("Raw JSON", value="", height=320, placeholder="Paste the full JSON here...")
 
 if st.button("Generate Directory", type="primary"):
     try:
@@ -101,10 +94,6 @@ if st.button("Generate Directory", type="primary"):
     except json.JSONDecodeError as e:
         st.error("Invalid JSON: " + str(e))
         st.stop()
-
-    if pretty:
-        st.subheader("Parsed JSON (pretty)")
-        st.code(json.dumps(payload, indent=2), language="json")
 
     entries = to_entries(payload)
     if not entries:
@@ -122,22 +111,3 @@ if st.button("Generate Directory", type="primary"):
         file_name="directory.md",
         mime="text/markdown",
     )
-
-    if show_table:
-        st.subheader("Parsed Employees")
-        st.dataframe(
-            [
-                {
-                    "Name": e["name"],
-                    "Position": e["position"],
-                    "Office": e["office_fmt"],
-                    "Email": e["email"],
-                }
-                for e in entries
-            ],
-            use_container_width=True,
-            hide_index=True,
-        )
-
-st.markdown("Run locally:\n\n- pip install streamlit\n- streamlit run Employee_List_Formatter.py")
-
