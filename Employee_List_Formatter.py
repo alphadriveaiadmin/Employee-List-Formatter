@@ -68,7 +68,7 @@ def render_directory(entries: list[dict]) -> str:
     lines.append("")
 
     for e in entries:
-        lines.append("    " + e["name"])
+        lines.append("" + e["name"])
         if e["position"]:
             lines.append(e["position"])
         if e["office_fmt"]:
